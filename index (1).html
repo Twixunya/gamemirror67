@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameMirror — Дневник влияния игр на самооценку</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="relative bg-grid min-h-screen flex flex-col justify-between">
+
+    <!-- Ambient glows -->
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+    <div class="fixed top-1/3 right-10 w-96 h-96 bg-cyan-600/15 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+    <div class="fixed bottom-10 left-1/3 w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[150px] pointer-events-none -z-10"></div>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="glass-panel px-5 py-4 rounded-2xl border border-emerald-500/40 shadow-2xl flex items-center gap-3 bg-slate-900/90 text-white">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <i class="fa-solid fa-circle-check text-lg"></i>
+            </div>
+            <div>
+                <h5 class="font-bold text-xs uppercase tracking-wider text-emerald-400">Успешно!</h5>
+                <p id="toastMessage" class="text-xs text-slate-200">Вы записаны на закрытое бета-тестирование.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <header class="sticky top-0 z-40 w-full backdrop-blur-xl bg-[#060911]/85 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-primary via-brand-accent to-brand-pink p-[1px] shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all">
+                    <div class="w-full h-full bg-[#0B0F19] rounded-[11px] flex items-center justify-center">
+                        <i class="fa-solid fa-gamepad text-brand-accent text-lg"></i>
+                    </div>
+                </div>
+                <span class="font-heading font-extrabold text-xl tracking-wider text-white">Game<span class="text-brand-accent">Mirror</span></span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+                <a href="#about" class="hover:text-brand-accent transition-colors">О проекте</a>
+                <a href="#features" class="hover:text-brand-accent transition-colors">Возможности</a>
+                <a href="#demo" class="hover:text-brand-accent transition-colors">Симулятор</a>
+                <a href="#reviews" class="hover:text-brand-accent transition-colors">Отзывы</a>
+            </nav>
+
+            <div class="hidden md:flex items-center gap-4">
+                <a href="#demo" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-accent text-white font-semibold text-sm shadow-lg shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    Попробовать демо
+                </a>
+            </div>
+
+            <!-- Mobile menu button -->
+            <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white focus:outline-none">
+                <i class="fa-solid fa-bars text-xl" id="menuIcon"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Nav Menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-b border-white/10 bg-[#0B0F19] px-4 py-4 space-y-3">
+            <a href="#about" class="block py-2 text-slate-300 hover:text-brand-accent text-sm font-medium mobile-link">О проекте</a>
+            <a href="#features" class="block py-2 text-slate-300 hover:text-brand-accent text-sm font-medium mobile-link">Возможности</a>
+            <a href="#demo" class="block py-2 text-slate-300 hover:text-brand-accent text-sm font-medium mobile-link">Симулятор</a>
+            <a href="#reviews" class="block py-2 text-slate-300 hover:text-brand-accent text-sm font-medium mobile-link">Отзывы</a>
+            <a href="#demo" class="block w-full text-center mt-3 px-5 py-3 rounded-xl bg-gradient-to-r from-brand-primary to-brand-accent text-white font-semibold text-sm mobile-link">
+                Попробовать демо
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- HERO SECTION -->
+        <section class="relative pt-12 pb-16 md:pt-20 md:pb-28">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Text Content -->
+                    <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-panel border-purple-500/30 text-xs sm:text-sm text-purple-300 font-medium">
+                            <span class="flex h-2 w-2 rounded-full bg-brand-emerald animate-pulse"></span>
+                            Умный трекинг игрового состояния
+                        </div>
+
+                        <h1 class="font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
+                            GameMirror: <br>
+                            <span class="text-gradient">Как игры меняют твою самооценку?</span>
+                        </h1>
+
+                        <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
+                            Первый интерактивный дневник, который показывает влияние побед, поражений и игровых сессий на твою уверенность в себе и эмоциональное состояние.
+                        </p>
+
+                        <div class="pt-2 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <a href="#demo" class="px-8 py-4 rounded-xl bg-gradient-to-r from-brand-primary via-brand-accent to-brand-pink text-white font-bold text-base shadow-xl shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all text-center">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Открыть симулятор
+                            </a>
+                            <a href="#about" class="px-8 py-4 rounded-xl glass-panel hover:bg-white/10 text-white font-semibold text-base transition-all text-center border border-white/10">
+                                Узнать подробнее
+                            </a>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="pt-8 grid grid-cols-3 gap-4 border-t border-white/10 max-w-md mx-auto lg:mx-0 text-left">
+                            <div>
+                                <div class="font-heading font-extrabold text-2xl text-white">84%</div>
+                                <div class="text-xs text-slate-400">замечают тильт вовремя</div>
+                            </div>
+                            <div>
+                                <div class="font-heading font-extrabold text-2xl text-brand-emerald">+30%</div>
+                                <div class="text-xs text-slate-400">к осознанному отдыху</div>
+                            </div>
+                            <div>
+                                <div class="font-heading font-extrabold text-2xl text-brand-accent">10k+</div>
+                                <div class="text-xs text-slate-400">записей сессий</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero Game Analysis Preview Widget -->
+                    <div class="lg:col-span-5">
+                        <div class="glass-panel p-6 sm:p-7 rounded-3xl relative glow-purple border border-purple-500/20">
+                            <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <span class="text-xs font-mono text-purple-300 uppercase tracking-widest"><i class="fa-solid fa-chart-line mr-1"></i> Экспресс-анализ</span>
+                            </div>
+
+                            <div class="mt-5 space-y-4">
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Выберите игру для примера:</label>
+                                
+                                <div class="grid grid-cols-2 gap-2" id="heroGameSelector">
+                                    <button data-game="dota" class="hero-btn active p-3 rounded-xl glass-panel text-left flex items-center gap-2 hover:border-brand-accent transition-all border-brand-accent bg-purple-500/20">
+                                        <i class="fa-solid fa-fire text-red-400 text-base"></i>
+                                        <div>
+                                            <div class="text-xs font-bold text-white">Dota 2</div>
+                                            <div class="text-[10px] text-slate-400">MOBA</div>
+                                        </div>
+                                    </button>
+                                    <button data-game="souls" class="hero-btn p-3 rounded-xl glass-panel text-left flex items-center gap-2 hover:border-brand-accent transition-all border-white/5">
+                                        <i class="fa-solid fa-skull text-amber-400 text-base"></i>
+                                        <div>
+                                            <div class="text-xs font-bold text-white">Elden Ring</div>
+                                            <div class="text-[10px] text-slate-400">RPG</div>
+                                        </div>
+                                    </button>
+                                    <button data-game="stardew" class="hero-btn p-3 rounded-xl glass-panel text-left flex items-center gap-2 hover:border-brand-accent transition-all border-white/5">
+                                        <i class="fa-solid fa-seedling text-emerald-400 text-base"></i>
+                                        <div>
+                                            <div class="text-xs font-bold text-white">Stardew Valley</div>
+                                            <div class="text-[10px] text-slate-400">Cozy</div>
+                                        </div>
+                                    </button>
+                                    <button data-game="cyberpunk" class="hero-btn p-3 rounded-xl glass-panel text-left flex items-center gap-2 hover:border-brand-accent transition-all border-white/5">
+                                        <i class="fa-solid fa-city text-cyan-400 text-base"></i>
+                                        <div>
+                                            <div class="text-xs font-bold text-white">Cyberpunk</div>
+                                            <div class="text-[10px] text-slate-400">Action</div>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <!-- Dynamic Output Result Box -->
+                                <div id="heroResultBox" class="mt-4 p-4 rounded-2xl bg-black/50 border border-white/10 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-white flex items-center gap-2">
+                                            <i class="fa-solid fa-brain text-brand-accent"></i> Статистика влияния
+                                        </span>
+                                        <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono" id="heroResultTime">2 часа каток</span>
+                                    </div>
+
+                                    <div class="space-y-2 text-xs">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-slate-400">Уверенность в себе:</span>
+                                            <span class="font-bold text-emerald-400" id="heroStat1">+15% (при победе)</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                            <div class="bg-emerald-400 h-full rounded-full transition-all duration-500" id="heroBar1" style="width: 65%;"></div>
+                                        </div>
+
+                                        <div class="flex justify-between items-center pt-1">
+                                            <span class="text-slate-400">Риск тильта / стресса:</span>
+                                            <span class="font-bold text-rose-400" id="heroStat2">+40% (высокий)</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                            <div class="bg-rose-400 h-full rounded-full transition-all duration-500" id="heroBar2" style="width: 85%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3 rounded-xl bg-purple-950/40 border border-purple-500/20 text-xs text-purple-200 mt-2 flex items-start gap-2">
+                                        <i class="fa-solid fa-lightbulb text-amber-300 text-sm mt-0.5"></i>
+                                        <p id="heroRecommendation">
+                                            «Победы дарят всплеск статуса, но поражения провоцируют тильт. Держи сессию до 2-3 игр.»
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT PROJECT SECTION -->
+        <section id="about" class="py-16 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto space-y-3">
+                    <h2 class="text-xs font-bold tracking-widest text-brand-accent uppercase">Психология гейминга</h2>
+                    <p class="font-heading text-3xl sm:text-4xl font-extrabold text-white">Почему видеоигры влияют на самооценку?</p>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        Каждая игра создает дофаминовые петли. Неудачные сессии часто заставляют сомневаться в собственных силах вне игры, а победы подпитывают эго. GameMirror помогает вернуть осознанность.
+                    </p>
+                </div>
+
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-panel-interactive p-6 sm:p-8 rounded-3xl space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Защита от тильта</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Учитесь распознавать первые признаки раздражения до того, как они испортят настроение на весь оставшийся день.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel-interactive p-6 sm:p-8 rounded-3xl space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Отслеживание триггеров</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Определите, какие жанры забирают ваш эмоциональный ресурс, а какие возвращают уверенность и вдохновение.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel-interactive p-6 sm:p-8 rounded-3xl space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+                            <i class="fa-solid fa-battery-charging"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Осознанный отдых</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Превратите гейминг из способа сбежать от проблем в контролируемый инструмент эмоциональной перезагрузки.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURES SECTION -->
+        <section id="features" class="py-16 bg-black/40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-xs font-bold tracking-widest text-brand-emerald uppercase">Функционал</h2>
+                    <p class="font-heading text-3xl font-extrabold text-white mt-2">Всё для баланса между играми и жизнью</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl space-y-3">
+                        <div class="text-brand-accent text-3xl mb-2"><i class="fa-solid fa-stopwatch"></i></div>
+                        <h4 class="font-bold text-base text-white">15-секундный чек-ин</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">Быстрый замер самооценки и настроения до и сразу после окончания сессии.</p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl space-y-3">
+                        <div class="text-brand-emerald text-3xl mb-2"><i class="fa-solid fa-chart-line"></i></div>
+                        <h4 class="font-bold text-base text-white">Графики динамики</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">Наглядные тренды влияния конкретных игр на твой ежедневный уровень уверенности.</p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl space-y-3">
+                        <div class="text-brand-pink text-3xl mb-2"><i class="fa-solid fa-user-doctor"></i></div>
+                        <h4 class="font-bold text-base text-white">AI-Психолог</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">Мгновенные микро-советы по восстановлению после тяжелых поражений или тильта.</p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl space-y-3">
+                        <div class="text-brand-cyan text-3xl mb-2"><i class="fa-solid fa-lock"></i></div>
+                        <h4 class="font-bold text-base text-white">100% Приватность</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">Все данные шифруются и доступны только тебе. Никаких публичных рейтингов.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE DIARY SIMULATOR SECTION -->
+        <section id="demo" class="py-16 relative">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Интерактивный симулятор</span>
+                    <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-white mt-3">Дневник сессии GameMirror</h2>
+                    <p class="text-slate-400 text-xs sm:text-sm mt-2">Заполните данные вашей последней игровой сессии и получите экспресс-анализ</p>
+                </div>
+
+                <div class="glass-panel p-6 sm:p-10 rounded-3xl border border-purple-500/30 glow-purple">
+                    <form id="diarySimulatorForm" class="space-y-6">
+                        
+                        <!-- Game Title & Session Output -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Название игры</label>
+                                <input type="text" id="simGameTitle" placeholder="например, Counter-Strike 2, Dota 2..." required
+                                       class="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-brand-accent text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Результат сессии</label>
+                                <select id="simSessionResult" class="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white focus:outline-none focus:border-brand-accent text-xs sm:text-sm">
+                                    <option value="win">Победа / Отличный прогресс 🏆</option>
+                                    <option value="lose">Серия поражений / Лузстрик 💔</option>
+                                    <option value="chill">Медитативный кач / Отдых 🌿</option>
+                                    <option value="hard">Сложный босс / Напряжение ⚔️</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Sliders for mood before & after -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                            <!-- Slider Before -->
+                            <div class="space-y-2 glass-panel p-4 rounded-2xl bg-black/30">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-xs font-bold uppercase tracking-wider text-slate-300">Самооценка ДО:</label>
+                                    <span id="valBefore" class="text-sm font-extrabold text-brand-accent">5 / 10</span>
+                                </div>
+                                <input type="range" id="sliderBefore" min="1" max="10" value="5" class="w-full accent-purple-500 cursor-pointer">
+                                <div class="flex justify-between text-[10px] text-slate-500">
+                                    <span>Низкая</span>
+                                    <span>Норма</span>
+                                    <span>Высокая</span>
+                                </div>
+                            </div>
+
+                            <!-- Slider After -->
+                            <div class="space-y-2 glass-panel p-4 rounded-2xl bg-black/30">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-xs font-bold uppercase tracking-wider text-slate-300">Самооценка ПОСЛЕ:</label>
+                                    <span id="valAfter" class="text-sm font-extrabold text-brand-emerald">5 / 10</span>
+                                </div>
+                                <input type="range" id="sliderAfter" min="1" max="10" value="5" class="w-full accent-emerald-400 cursor-pointer">
+                                <div class="flex justify-between text-[10px] text-slate-500">
+                                    <span>Тильт</span>
+                                    <span>Норма</span>
+                                    <span>Подъем</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes input -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Краткая заметка (эмоции / мысли)</label>
+                            <input type="text" id="simNotes" placeholder="например: сгорел с тимейтов / наконец-то прошел босса!"
+                                   class="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-brand-accent text-xs sm:text-sm">
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center pt-2">
+                            <button type="submit" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-brand-primary via-brand-accent to-brand-emerald text-white font-bold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer">
+                                <i class="fa-solid fa-chart-pie mr-2"></i> Проанализировать сессию
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Analysis Output Container -->
+                    <div id="simAnalysisOutput" class="hidden mt-8 p-6 rounded-2xl bg-black/70 border border-white/10 space-y-6">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass-chart text-brand-emerald"></i> Отчет по игре: <span id="outGameName" class="text-brand-accent"></span>
+                            </h3>
+                            <span id="outDeltaBadge" class="px-3 py-1 rounded-full text-xs font-extrabold"></span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <!-- Custom SVG Trend Chart -->
+                            <div class="md:col-span-5 bg-slate-950/80 p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center space-y-2">
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Динамика самооценки</span>
+                                <svg id="svgTrendChart" viewBox="0 0 200 100" class="w-full h-28 overflow-visible">
+                                    <!-- Dynamic SVG graph inserted via JS -->
+                                </svg>
+                                <div class="flex justify-between w-full text-[10px] text-slate-500 px-2">
+                                    <span>До игры</span>
+                                    <span>После игры</span>
+                                </div>
+                            </div>
+
+                            <!-- Psychological Insights -->
+                            <div class="md:col-span-7 space-y-3">
+                                <div>
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Психологический вывод:</span>
+                                    <p id="outPsychSummary" class="text-xs sm:text-sm text-slate-200 mt-1 leading-relaxed font-medium"></p>
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-purple-900/30 border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
+                                    <i class="fa-solid fa-lightbulb text-amber-300 text-sm mt-0.5"></i>
+                                    <div>
+                                        <span class="font-bold text-white block mb-0.5">Рекомендация GameMirror:</span>
+                                        <span id="outPsychAdvice"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- REVIEWS SECTION -->
+        <section id="reviews" class="py-16 bg-black/30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-xs font-bold tracking-widest text-brand-pink uppercase">Истории игроков</h2>
+                    <p class="font-heading text-3xl font-extrabold text-white mt-2">Как GameMirror помогает геймерам</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-panel p-6 rounded-3xl space-y-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-500 to-indigo-500 flex items-center justify-center font-bold text-white text-xs">
+                                АМ
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Алексей М., 24 года</h4>
+                                <p class="text-[10px] text-slate-400">Игрок в Dota 2 и CS2</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed italic">
+                            «Я раньше не осознавал, как сильно слитый рейтинг влияет на мою уверенность на работе. GameMirror помог вовремя останавливать серии игр.»
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-3xl space-y-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-400 to-cyan-500 flex items-center justify-center font-bold text-white text-xs">
+                                ЕК
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Елена К., 29 лет</h4>
+                                <p class="text-[10px] text-slate-400">Любитель RPG</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed italic">
+                            «Дневник показал, что уютные игры наоборот перезагружают мою психику после рабочей недели. Перестала винить себя за время в играх.»
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-3xl space-y-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-xs">
+                                ДС
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Дмитрий С., 21 год</h4>
+                                <p class="text-[10px] text-slate-400">Фанат Souls-like</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed italic">
+                            «Научился переводить злость от победы над сложным боссом в чувство реальной гордости. Очень крутой сервис!»
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA & BETA SIGNUP FORM -->
+        <section class="py-16 relative">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="glass-panel p-8 sm:p-12 rounded-3xl text-center space-y-6 border border-purple-500/30 relative overflow-hidden">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300">Закрытый бета-тест</span>
+                    <h2 class="font-heading text-3xl sm:text-4xl font-black text-white">Сделай свой гейминг осознанным</h2>
+                    <p class="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto">
+                        Оставьте ваш e-mail, чтобы получить ранний доступ к приложению GameMirror и персональному AI-аналитику.
+                    </p>
+
+                    <form id="subscribeForm" class="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+                        <input type="email" id="subEmail" placeholder="Введите ваш e-mail" required
+                               class="flex-1 px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-brand-accent text-xs sm:text-sm">
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-primary to-brand-accent text-white font-bold text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer">
+                            Присоединиться
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-white/10 bg-[#04060C] py-8 text-slate-400 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-md bg-gradient-to-tr from-brand-primary to-brand-accent flex items-center justify-center text-white text-xs">
+                    <i class="fa-solid fa-gamepad"></i>
+                </div>
+                <span class="font-heading font-extrabold text-sm text-white">GameMirror</span>
+            </div>
+
+            <div class="flex gap-6 text-slate-400 text-xs">
+                <a href="#about" class="hover:text-white transition-colors">О проекте</a>
+                <a href="#features" class="hover:text-white transition-colors">Возможности</a>
+                <a href="#demo" class="hover:text-white transition-colors">Симулятор</a>
+            </div>
+
+            <div class="text-slate-500 text-[11px]">
+                © 2026 GameMirror Project. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>
